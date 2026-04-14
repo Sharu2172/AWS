@@ -1,1 +1,11 @@
-.env
+# Git Ignore file for Python projects
+__pycache__/
+.pytest_cache/
+*.pyc
+.codex
+
+# Virtual environment
+.venv/
+
+# Environment variables
+.env*

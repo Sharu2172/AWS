@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  aws-cli-lite:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ~/.aws:/root/.aws
+      - ..:/workspace
+    working_dir: /workspace
+    environment:
+      - AWS_PROFILE=default
+      - AWS_BUCKET_NAME=test-bucket

@@ -1,0 +1,38 @@
+[project]
+name = "aws-cli-lite"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.14.*"
+dependencies = [
+    "aioboto3>=15.5.0",
+    "botocore>=1.40.61",
+    "click>=8.3.2",
+    "pydantic>=2.13.0",
+    "pydantic-settings>=2.13.1",
+    "pytest>=9.0.3",
+    "python-dotenv>=1.2.2",
+]
+
+[project.scripts]
+aws_cli_lite = "aws_cli_lite.main:cli"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-ra -q"
+
+[build-system]
+requires = ["uv_build>=0.5.30,<1.0.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+core = { path = "packages/core", editable = true }
+s3 = { path = "packages/s3", editable = true }
