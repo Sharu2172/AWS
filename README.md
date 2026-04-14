@@ -1,39 +1,258 @@
-# AWS Projects
+# aws-cli-lite
 
-This folder contains a collection of projects and scripts related to Amazon Web Services (AWS). Each subfolder represents a different AWS service or use case, providing practical examples and implementations.
+A small Python CLI workspace for AWS-related packages. Right now it includes an `S3` package, and the README is structured so more packages can be added under their own sections later.
 
-## Projects
+## Requirements
 
-### s3-bucket
-A Python application for managing AWS S3 bucket operations. It includes functionalities to list, search, read, download, upload, and delete files in an S3 bucket.
+- Python `3.14`
+- `uv`
+- AWS credentials, either through `~/.aws` or environment variables
 
-- **Location**: `s3-bucket/`
-- **Technologies**: Python, boto3, pydantic-settings
-- **Features**:
-  - Recursive file listing
-  - File search across folders
-  - File content reading
-  - Download and upload operations
-  - File deletion
+## Packages
 
-For more details, see [s3-bucket/README.md](s3-bucket/README.md).
+### S3
 
-## Getting Started
+Location:
+`src/s3`
 
-1. Ensure you have Python installed (version 3.11 or higher).
-2. Install UV for dependency management: `pip install uv`.
-3. Navigate to the desired project folder and follow the installation instructions in its README.
+Purpose:
+Manage S3 bucket objects from the CLI.
 
-## Prerequisites
+Features:
+- List objects
+- Search objects by suffix
+- Read object contents
+- Upload single files
+- Upload multiple files
+- Download multiple files
+- Delete objects
 
-- AWS Account with appropriate permissions
-- AWS CLI configured or credentials set up
-- Python 3.11+
+CLI group:
 
-## Contributing
+```bash
+aws_cli_lite s3
+```
 
-Feel free to add new AWS-related projects to this folder. Each project should have its own subfolder with a comprehensive README.md file.
+Future packages can be added in the same format:
 
-## License
+- package name
+- location
+- purpose
+- supported commands
+- environment variables
+- usage examples
 
-Each project may have its own license. Check individual project READMEs for details.
+## Environment Configuration
+
+The app loads environment variables from `.env.<ENV>`.
+
+By default:
+
+```bash
+ENV=dev
+```
+
+So local runs will load:
+
+```bash
+.env.dev
+```
+
+Create `.env.dev` from `example.env.dev` and set the values you need:
+
+```env
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=ap-south-1
+AWS_BUCKET_NAME=your-bucket
+DEBUG=False
+```
+
+Supported AWS config values:
+
+- `AWS_PROFILE`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `AWS_BUCKET_NAME`
+
+## Install
+
+Install runtime dependencies:
+
+```bash
+uv sync
+```
+
+Install dev dependencies too:
+
+```bash
+uv sync --extra dev
+```
+
+## Run Locally
+
+Show CLI help:
+
+```bash
+uv run aws_cli_lite --help
+```
+
+Show package help:
+
+```bash
+uv run aws_cli_lite s3 --help
+```
+
+## S3
+
+### Environment Variables
+
+Used by the S3 package:
+
+- `AWS_PROFILE`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `AWS_BUCKET_NAME`
+
+### Commands
+
+List S3 objects:
+
+```bash
+uv run aws_cli_lite s3 list
+```
+
+Read an object:
+
+```bash
+uv run aws_cli_lite s3 read --key test1/sample.txt
+```
+
+Search by suffix:
+
+```bash
+uv run aws_cli_lite s3 search --prefix sample.txt
+```
+
+Upload a file:
+
+```bash
+uv run aws_cli_lite s3 upload --file ./local.txt --key uploads/local.txt
+```
+
+Delete a file:
+
+```bash
+uv run aws_cli_lite s3 delete --key uploads/local.txt
+```
+
+Override the configured bucket for a single command:
+
+```bash
+uv run aws_cli_lite s3 list --bucket another-bucket
+```
+
+Upload multiple files:
+
+```bash
+uv run aws_cli_lite s3 upload-many \
+  --files ./a.txt:uploads/a.txt \
+  --files ./b.txt:uploads/b.txt
+```
+
+Download multiple files:
+
+```bash
+uv run aws_cli_lite s3 download-many \
+  --keys uploads/a.txt \
+  --keys uploads/b.txt \
+  --dest ./downloads
+```
+
+## Tests
+
+Run tests with the project environment:
+
+```bash
+uv run pytest
+```
+
+If you already have the project virtualenv and want to use it directly:
+
+```bash
+.venv/bin/pytest
+```
+
+Current S3 test coverage includes:
+
+- S3 service behavior
+- Pagination handling
+- Streaming reads
+- Upload, download, and delete flows
+- Parallel upload and download helpers
+- CLI command behavior
+
+## Docker
+
+Build the image:
+
+```bash
+docker build -f docker/Dockerfile -t aws-cli-lite:test .
+```
+
+Run the CLI in a container:
+
+```bash
+docker run --rm --env-file .env.dev aws-cli-lite:test --help
+```
+
+Run an S3 command with local AWS credentials mounted:
+
+```bash
+docker run --rm \
+  --env-file .env.dev \
+  -v ~/.aws:/root/.aws:ro \
+  aws-cli-lite:test s3 list
+```
+
+## Docker Compose
+
+The Compose service automatically loads `../.env.dev` and mounts `~/.aws` read-only.
+
+Show help:
+
+```bash
+docker compose -f docker/docker-compose.yml run --rm aws-cli-lite --help
+```
+
+List files:
+
+```bash
+docker compose -f docker/docker-compose.yml run --rm aws-cli-lite s3 list
+```
+
+Override a value for one run:
+
+```bash
+docker compose -f docker/docker-compose.yml run --rm \
+  -e AWS_BUCKET_NAME=my-bucket \
+  aws-cli-lite s3 list
+```
+
+Run an S3 read command:
+
+```bash
+docker compose -f docker/docker-compose.yml run --rm \
+  aws-cli-lite s3 read --key test1/sample.txt
+```
+
+## CI
+
+GitHub Actions runs the test suite on pushes to `main` and on pull requests.
+
+## Notes
+
+- Use `uv run pytest` instead of plain `pytest` if your shell is not already using the project virtualenv.
+- `docker compose config` prints resolved environment values, so avoid sharing that output if your `.env.dev` contains real secrets.

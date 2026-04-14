@@ -13,16 +13,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install uv
-        run: pip install uv
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.14.*"
 
+      - name: Install uv
+        run: pip install uv
+
       - name: Install dependencies
         run: uv pip install --system -e .[dev]
 
       - name: Run tests
-        run: pytest
+        run: uv run pytest

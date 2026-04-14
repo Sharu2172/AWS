@@ -1,14 +1,15 @@
-version: "3.9"
-
 services:
   aws-cli-lite:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+    env_file:
+      - ../.env.dev
     volumes:
-      - ~/.aws:/root/.aws
-      - ..:/workspace
-    working_dir: /workspace
+      - ~/.aws:/root/.aws:ro
     environment:
-      - AWS_PROFILE=default
-      - AWS_BUCKET_NAME=test-bucket
+      AWS_PROFILE: ${AWS_PROFILE:-default}
+      AWS_BUCKET_NAME: ${AWS_BUCKET_NAME:-}
+      AWS_REGION: ${AWS_REGION:-ap-south-1}
+    stdin_open: true
+    tty: true

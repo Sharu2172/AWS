@@ -1,25 +1,21 @@
-# ---- Base ----
-FROM python:3.11-slim
+FROM python:3.14-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    PYTHONPATH=/app/src
 
 WORKDIR /app
 
-# ---- Install uv ----
-RUN pip install --no-cache-dir uv
+COPY --from=ghcr.io/astral-sh/uv:0.7.3 /uv /uvx /bin/
 
-# ---- Copy dependency files first (cache optimization) ----
-COPY pyproject.toml uv.lock ./
-
-# ---- Install deps ----
-RUN uv pip install --system -e .
-
-# ---- Copy source ----
+COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
-# ---- Entrypoint ----
+RUN uv pip install --system --no-cache .
+
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["--help"]
