@@ -104,18 +104,6 @@ Show package help:
 uv run aws_cli_lite s3 --help
 ```
 
-## S3
-
-### Environment Variables
-
-Used by the S3 package:
-
-- `AWS_PROFILE`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
-- `AWS_BUCKET_NAME`
-
 ### Commands
 
 List S3 objects:
