@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-aws_cli_lite = "aws_cli_lite.main:cli"
+aws = "aws_cli_lite.main:cli"
 
 [project.optional-dependencies]
 dev = [

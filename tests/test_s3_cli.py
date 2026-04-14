@@ -6,6 +6,7 @@ from s3.cli import s3
 class FakeManager:
     def __init__(self, bucket):
         self.bucket = bucket
+        type(self).last_instance = self
 
     async def list_all_files(self):
         return ["alpha.txt", "beta.txt"]
@@ -63,3 +64,27 @@ def test_search_command_prints_matches(monkeypatch):
 
     assert result.exit_code == 0
     assert result.output == "invoice-match.txt\n"
+
+
+def test_download_many_accepts_multiple_keys(monkeypatch):
+    monkeypatch.setattr("s3.cli.S3BucketManager", FakeManager)
+
+    result = CliRunner().invoke(
+        s3,
+        [
+            "download-many",
+            "test1/sample.txt",
+            "test2/sample.txt",
+            "--bucket",
+            "demo-bucket",
+            "--dest",
+            "./downloads",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert result.output == "Parallel download complete\n"
+    assert FakeManager.last_instance.download_many_args == (
+        ["test1/sample.txt", "test2/sample.txt"],
+        "./downloads",
+    )

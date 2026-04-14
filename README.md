@@ -90,6 +90,27 @@ Install dev dependencies too:
 uv sync --extra dev
 ```
 
+## Justfile
+
+Common workflows are available through `just`.
+
+List commands:
+
+```bash
+just
+```
+
+Examples:
+
+```bash
+just test
+just docker-build
+just compose-help
+just s3-read test1/sample.txt
+just s3-download-many test1/sample.txt test2/sample.txt
+just clean
+```
+
 ## Run Locally
 
 Show CLI help:

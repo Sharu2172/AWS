@@ -12,9 +12,9 @@ def run_async(awaitable):
     return asyncio.run(awaitable)
 
 
-@s3.command()
+@s3.command("list")
 @click.option("--bucket", required=False)
-def list(bucket):
+def list_files(bucket):
     manager = S3BucketManager(bucket)
     files = run_async(manager.list_all_files())
 
@@ -71,14 +71,13 @@ def upload_many(bucket, files):
     click.echo("Parallel upload complete")
 
 
-@s3.command()
+@s3.command("download-many")
 @click.option("--bucket", required=False)
-@click.option("--keys", multiple=True)
 @click.option("--dest", default=".")
-def download_many(bucket, keys, dest):
+@click.argument("object_keys", nargs=-1, required=True)
+def download_many_command(bucket, dest, object_keys):
     manager = S3BucketManager(bucket)
-
-    run_async(manager.download_files_parallel(list(keys), dest))
+    run_async(manager.download_files_parallel(list(object_keys), dest))
     click.echo("Parallel download complete")
 
 @s3.command()
